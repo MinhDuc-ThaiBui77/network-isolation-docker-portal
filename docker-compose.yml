@@ -1,0 +1,67 @@
+services:
+  db:
+    image: postgres:16-alpine
+    container_name: portal-db
+    env_file: .env
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+      - ./db:/docker-entrypoint-initdb.d
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U portal -d portal_db"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - isolation-net
+
+  redis:
+    image: redis:7-alpine
+    container_name: portal-redis
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+    restart: unless-stopped
+    networks:
+      - isolation-net
+
+  portal:
+    build: ./api
+    container_name: portal
+    ports:
+      - "5000:5000"     # HTTP API (tạm expose ra host, Phase 5 sẽ chuyển internal)
+      - "9999:9999"     # TCP cho agent (luôn expose ra host)
+    env_file: .env
+    environment:
+      - TCP_PORT=9999
+      - HTTP_PORT=5000
+    depends_on:
+      db:
+        condition: service_healthy
+      redis:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - isolation-net
+
+  agent:
+    build: ./agent
+    container_name: agent
+    environment:
+      - PORTAL_HOST=portal
+      - PORTAL_PORT=9999
+    depends_on:
+      portal:
+        condition: service_healthy
+    restart: unless-stopped
+    networks:
+      - isolation-net
+
+volumes:
+  pgdata:
+
+networks:
+  isolation-net:
+    driver: bridge
