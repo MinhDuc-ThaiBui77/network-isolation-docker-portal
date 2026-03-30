@@ -15,13 +15,14 @@ func registerRoutes(mux *http.ServeMux, p *Portal) {
 	portal = p
 
 	mux.HandleFunc("GET /health", healthHandler)
-	mux.HandleFunc("GET /api/agents", listAgentsHandler)
-	mux.HandleFunc("GET /api/agents/{id}/status", agentStatusHandler)
-	mux.HandleFunc("POST /api/agents/{id}/isolate", isolateHandler)
-	mux.HandleFunc("POST /api/agents/{id}/release", releaseHandler)
-	mux.HandleFunc("POST /api/agents/{id}/whitelist", whitelistHandler)
-	mux.HandleFunc("POST /api/agents/broadcast", broadcastHandler)
-	mux.HandleFunc("GET /api/events", eventsHandler)
+	mux.HandleFunc("POST /api/auth/login", loginHandler)
+	mux.HandleFunc("GET /api/agents", authMiddleware(listAgentsHandler))
+	mux.HandleFunc("GET /api/agents/{id}/status", authMiddleware(agentStatusHandler))
+	mux.HandleFunc("POST /api/agents/{id}/isolate", authMiddleware(isolateHandler))
+	mux.HandleFunc("POST /api/agents/{id}/release", authMiddleware(releaseHandler))
+	mux.HandleFunc("POST /api/agents/{id}/whitelist", authMiddleware(whitelistHandler))
+	mux.HandleFunc("POST /api/agents/broadcast", authMiddleware(broadcastHandler))
+	mux.HandleFunc("GET /api/events", authMiddleware(eventsHandler))
 }
 
 // writeJSON writes a JSON response with the given status code.

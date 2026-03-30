@@ -20,6 +20,13 @@ type Event struct {
 	CreatedAt string `json:"created_at"`
 }
 
+// User represents an authenticated API user.
+type User struct {
+	ID       int
+	Username string
+	Password string
+}
+
 // ConnectDB opens a connection pool to PostgreSQL and verifies it.
 func ConnectDB(dsn string) error {
 	var err error
@@ -85,4 +92,31 @@ func CloseDB() {
 	if db != nil {
 		db.Close()
 	}
+}
+
+// CreateUser inserts a new user with a pre-hashed password.
+func CreateUser(username, hashedPassword string) error {
+	_, err := db.Exec(
+		"INSERT INTO users (username, password) VALUES ($1, $2)",
+		username, hashedPassword,
+	)
+	return err
+}
+
+// FindUserByUsername returns a user by username, or (nil, nil) when not found.
+func FindUserByUsername(username string) (*User, error) {
+	row := db.QueryRow(
+		"SELECT id, username, password FROM users WHERE username = $1",
+		username,
+	)
+
+	var user User
+	if err := row.Scan(&user.ID, &user.Username, &user.Password); err != nil {
+		if err == sql.ErrNoRows {
+			return nil, nil
+		}
+		return nil, err
+	}
+
+	return &user, nil
 }

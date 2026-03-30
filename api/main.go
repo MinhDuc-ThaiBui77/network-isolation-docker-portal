@@ -15,12 +15,15 @@ func main() {
 
 	cfg := LoadConfig()
 
+	InitAuth(cfg.JWTSecret)
+
 	// Connect to PostgreSQL
 	if cfg.DatabaseURL != "" {
 		if err := ConnectDB(cfg.DatabaseURL); err != nil {
 			log.Fatalf("Failed to connect to database: %v", err)
 		}
 		log.Println("Connected to PostgreSQL")
+		SeedAdminUser(cfg.AdminUsername, cfg.AdminPassword)
 	}
 
 	// Connect to Redis

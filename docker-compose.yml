@@ -31,7 +31,6 @@ services:
     build: ./api
     container_name: portal
     ports:
-      - "5000:5000"     # HTTP API (tạm expose ra host, Phase 5 sẽ chuyển internal)
       - "9999:9999"     # TCP cho agent (luôn expose ra host)
     env_file: .env
     environment:
@@ -46,18 +45,21 @@ services:
     networks:
       - isolation-net
 
-  agent:
-    build: ./agent
-    container_name: agent
-    environment:
-      - PORTAL_HOST=portal
-      - PORTAL_PORT=9999
+  nginx:
+    image: nginx:alpine
+    container_name: portal-nginx
+    ports:
+      - "8080:80"
+    volumes:
+      - ./nginx/nginx.conf:/etc/nginx/conf.d/default.conf:ro
+      - ./dashboard:/usr/share/nginx/html:ro
     depends_on:
       portal:
         condition: service_healthy
     restart: unless-stopped
     networks:
       - isolation-net
+
 
 volumes:
   pgdata:

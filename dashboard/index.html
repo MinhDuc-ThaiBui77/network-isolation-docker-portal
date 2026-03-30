@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Network Isolation Portal</title>
+  <link rel="stylesheet" href="style.css">
+</head>
+<body>
+  <div id="screen-login" class="screen">
+    <div class="login-card">
+      <h1>Network Isolation Portal</h1>
+      <p class="screen-subtitle">Sign in to manage isolation agents.</p>
+      <form id="form-login" class="login-form">
+        <label class="field">
+          <span>Username</span>
+          <input id="input-username" type="text" autocomplete="username" required>
+        </label>
+        <label class="field">
+          <span>Password</span>
+          <input id="input-password" type="password" autocomplete="current-password" required>
+        </label>
+        <button type="submit" class="btn btn-primary btn-block">Login</button>
+      </form>
+      <p id="login-error" class="status-message error-text"></p>
+    </div>
+  </div>
+
+  <div id="screen-dashboard" class="screen" style="display:none">
+    <div class="dashboard-shell">
+      <header class="dashboard-header">
+        <div>
+          <h1>Network Isolation Portal</h1>
+          <p class="screen-subtitle">Monitor agents and recent security actions.</p>
+        </div>
+        <button id="btn-logout" class="btn btn-secondary" type="button">Logout</button>
+      </header>
+
+      <main class="dashboard-grid">
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Agents</h2>
+            <span class="panel-hint">Auto-refresh every 10 seconds</span>
+          </div>
+          <div id="agents-list" class="agents-list"></div>
+        </section>
+
+        <section class="panel">
+          <div class="panel-header">
+            <h2>Events</h2>
+            <span class="panel-hint">Last 20 actions</span>
+          </div>
+          <div id="events-list" class="events-list"></div>
+        </section>
+      </main>
+    </div>
+  </div>
+
+  <script src="app.js"></script>
+</body>
+</html>
